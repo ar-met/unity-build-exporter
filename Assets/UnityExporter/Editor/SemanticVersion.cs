@@ -8,7 +8,7 @@ namespace UnityExporter
     ///     Simple semantic version helper. See: https://semver.org/
     /// </summary>
     // TODO improve: might not be the cleanest implementation, but it works
-    public class SemanticVersion
+    internal class SemanticVersion
     {
         public static bool TryParse(string versionString, out SemanticVersion semanticVersion)
         {

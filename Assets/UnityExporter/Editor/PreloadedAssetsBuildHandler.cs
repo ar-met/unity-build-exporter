@@ -15,7 +15,7 @@ namespace UnityExporter
     /// </summary>
     // We need to combine build-interface implementation with -attribute,
     // because we require two different values for the callback order.
-    public sealed class PreloadedAssetsBuildHandler : IPreprocessBuildWithReport
+    internal class PreloadedAssetsBuildHandler : IPreprocessBuildWithReport
     {
         private static Object[] s_CachedPreloadedAssetsBeforeBuild;
 

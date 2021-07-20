@@ -9,16 +9,15 @@ using UnityEngine;
 
 namespace UnityExporter
 {
-    public static class BuildUtility
+    internal static class BuildUtility
     {
         private static string[] s_CurrentCommandLineArguments;
-        private static string   s_TargetBuildPathAndroid;
-        private static string   s_TargetBuildPathIOS;
+        private static string   s_ExportPath;
 
         private static string[] s_ScenesInBuild;
 
-        private static string s_NewVersion;
-        private static bool   s_IncrementVersionCode;
+        private static string s_Version;
+        private static string s_VersionCode;
         private static bool   s_IsBatchmode;
 
         private static SettingsCopy s_Settings;
@@ -26,7 +25,8 @@ namespace UnityExporter
         private static void InitBuild()
         {
             Debug.Log($"{nameof(BuildUtility)}.{nameof(InitBuild)}");
-            s_Settings                    = SettingsCopy.Create();
+            s_Settings = SettingsCopy.Create();
+            Debug.Log($"Settings: {s_Settings}");
             s_CurrentCommandLineArguments = Environment.GetCommandLineArgs();
             Debug.Log(
                 $"{nameof(BuildUtility)}.{nameof(InitBuild)}." +
@@ -34,48 +34,27 @@ namespace UnityExporter
 
             for (int i = 0; i < s_CurrentCommandLineArguments.Length; i++)
             {
-                if (s_CurrentCommandLineArguments[i].Contains("pathIOS"))
+                if (s_CurrentCommandLineArguments[i].Contains("exportPath"))
                 {
-                    s_TargetBuildPathIOS = s_CurrentCommandLineArguments[++i];
-                }
-                else if (s_CurrentCommandLineArguments[i].Contains("pathAndroid"))
-                {
-                    s_TargetBuildPathAndroid = s_CurrentCommandLineArguments[++i];
-                }
-                else if (s_CurrentCommandLineArguments[i].Contains("incrementVersionCode"))
-                {
-                    s_IncrementVersionCode = true;
+                    s_ExportPath = s_CurrentCommandLineArguments[++i];
                 }
                 else if (s_CurrentCommandLineArguments[i].Contains("batchmode"))
                 {
                     s_IsBatchmode = true;
                 }
-                else if (s_CurrentCommandLineArguments[i].Contains("newVersion"))
+                else if (s_CurrentCommandLineArguments[i].Contains("version"))
                 {
-                    s_NewVersion = s_CurrentCommandLineArguments[++i];
+                    s_Version = s_CurrentCommandLineArguments[++i];
+                }
+                else if (s_CurrentCommandLineArguments[i].Contains("versionCode"))
+                {
+                    s_VersionCode = s_CurrentCommandLineArguments[++i];
                 }
             }
 
-            Debug.Log($"{nameof(BuildUtility)}.{nameof(InitBuild)}.newVersion: "           + s_NewVersion);
-            Debug.Log($"{nameof(BuildUtility)}.{nameof(InitBuild)}.incrementVersionCode: " + s_IncrementVersionCode);
-
-            // providing fallback only if we use this in the editor
-            // no fallback when used during "batchmode"
-            if (!s_IsBatchmode)
-            {
-                if (string.IsNullOrEmpty(s_TargetBuildPathAndroid))
-                {
-                    s_TargetBuildPathAndroid = Path.Combine(Application.dataPath, "..", "Builds", "android");
-                }
-
-                if (string.IsNullOrEmpty(s_TargetBuildPathIOS))
-                {
-                    s_TargetBuildPathIOS = Path.Combine(Application.dataPath, "..", "Builds", "ios");
-                }
-            }
-
-            Debug.Log($"{nameof(BuildUtility)}.{nameof(InitBuild)}.Path.Android: " + s_TargetBuildPathAndroid);
-            Debug.Log($"{nameof(BuildUtility)}.{nameof(InitBuild)}.Path.iOS: "     + s_TargetBuildPathIOS);
+            Debug.Log($"{nameof(BuildUtility)}.{nameof(InitBuild)}.newVersion: "           + s_Version);
+            Debug.Log($"{nameof(BuildUtility)}.{nameof(InitBuild)}.incrementVersionCode: " + s_VersionCode);
+            Debug.Log($"{nameof(BuildUtility)}.{nameof(InitBuild)}.exportPath: "           + s_ExportPath);
 
             s_ScenesInBuild = EditorBuildSettings
                               .scenes
@@ -109,91 +88,41 @@ namespace UnityExporter
             // init
             InitBuild();
 
-            // generic
             EditorUserBuildSettings.development                  = false;
             EditorUserBuildSettings.exportAsGoogleAndroidProject = true;
 
-            if (!string.IsNullOrEmpty(s_NewVersion))
+            if (!string.IsNullOrEmpty(s_Version))
             {
-                PlayerSettings.bundleVersion = s_NewVersion;
+                PlayerSettings.bundleVersion = s_Version;
             }
 
-            if (s_IncrementVersionCode)
+            // if (s_VersionCode)
             {
                 PlayerSettings.Android.bundleVersionCode++;
                 PlayerSettings.iOS.buildNumber = PlayerSettings.Android.bundleVersionCode.ToString();
             }
 
-            // Android 
-            if (!string.IsNullOrEmpty(s_TargetBuildPathAndroid))
+            if (!string.IsNullOrEmpty(s_ExportPath))
             {
-                // note that "UNITY_ANDROID" is set via batchmode parameter "buildTarget"
-                Directory.CreateDirectory(s_TargetBuildPathAndroid);
+                // Note that the following is set via batchmode parameter "buildTarget":
+                // - "UNITY_ANDROID", "UNITY_IOS", ...
+                // - EditorUserBuildSettings.activeBuildTarget, EditorUserBuildSettings.selectedBuildTargetGroup, ...
+                Directory.CreateDirectory(s_ExportPath);
                 Debug.Log(
-                    $"{nameof(CreateBuild)}.Android: Starting build now. " +
-                    $"Define Symbols '{PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android)}'");
+                    $"{nameof(CreateBuild)}.{s_Settings.buildTarget}: Starting build now. " +
+                    $"Define Symbols '{PlayerSettings.GetScriptingDefineSymbolsForGroup(s_Settings.buildTargetGroup)}'");
                 var report = BuildPipeline.BuildPlayer(
                     s_ScenesInBuild,
-                    s_TargetBuildPathAndroid,
-                    BuildTarget.Android,
+                    s_ExportPath,
+                    s_Settings.buildTarget,
                     BuildOptions.None);
                 Debug.Log(
-                    $"{nameof(BuildUtility)}.{nameof(CreateBuild)}.Android.Report: " +
-                    $"{ReportToString(report)}");
-            }
-
-            // iOS
-            if (!string.IsNullOrEmpty(s_TargetBuildPathIOS))
-            {
-                // note that "UNITY_IOS" is set via batchmode parameter "buildTarget"
-                Directory.CreateDirectory(s_TargetBuildPathIOS);
-                Debug.Log(
-                    $"{nameof(CreateBuild)}.iOS: Starting build now. " +
-                    $"Define Symbols '{PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS)}'");
-                var report = BuildPipeline.BuildPlayer(
-                    s_ScenesInBuild,
-                    s_TargetBuildPathIOS,
-                    BuildTarget.iOS,
-                    BuildOptions.None);
-
-                Debug.Log(
-                    $"{nameof(BuildUtility)}.{nameof(CreateBuild)}.iOS.Report: " +
+                    $"{nameof(BuildUtility)}.{nameof(CreateBuild)}.{s_Settings.buildTarget}.Report: " +
                     $"{ReportToString(report)}");
             }
 
             // finish
             FinishBuild();
-        }
-
-        private class SettingsCopy
-        {
-            public BuildTarget      buildTarget               { get; private set; }
-            public BuildTargetGroup buildTargetGroup          { get; private set; }
-            public string           scriptingDefineSymbols    { get; private set; }
-            public bool             developmentBuildFlag      { get; private set; }
-            public bool             exportAsGoogleAndroidFlag { get; private set; }
-
-            public void Apply()
-            {
-                EditorUserBuildSettings.development                  = developmentBuildFlag;
-                EditorUserBuildSettings.exportAsGoogleAndroidProject = exportAsGoogleAndroidFlag;
-                PlayerSettings.SetScriptingDefineSymbolsForGroup(
-                    buildTargetGroup, scriptingDefineSymbols);
-            }
-
-            public static SettingsCopy Create()
-            {
-                return new SettingsCopy
-                {
-                    buildTarget      = EditorUserBuildSettings.activeBuildTarget,
-                    buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup,
-                    scriptingDefineSymbols =
-                        PlayerSettings.GetScriptingDefineSymbolsForGroup(
-                            EditorUserBuildSettings.selectedBuildTargetGroup),
-                    developmentBuildFlag      = EditorUserBuildSettings.development,
-                    exportAsGoogleAndroidFlag = EditorUserBuildSettings.exportAsGoogleAndroidProject
-                };
-            }
         }
     }
 }

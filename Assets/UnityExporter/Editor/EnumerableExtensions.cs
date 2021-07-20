@@ -4,7 +4,7 @@ using System.Text;
 
 namespace UnityExporter
 {
-    public static class EnumerableExtensions
+    internal static class EnumerableExtensions
     {
         public static string ElementsToString<T>(this IEnumerable<T> enumerable)
         {

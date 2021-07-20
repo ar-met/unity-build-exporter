@@ -5,7 +5,7 @@ using UnityEngine.TestTools;
 
 namespace UnityExporter.Tests
 {
-    public class SemanticVersionTests
+    internal class SemanticVersionTests
     {
         [Test]
         public void TryParse_01()
