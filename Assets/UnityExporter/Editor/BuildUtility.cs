@@ -20,13 +20,13 @@ namespace UnityExporter
         private static string s_VersionCode;
         private static bool   s_IsBatchmode;
 
-        private static SettingsCopy s_Settings;
+        private static EditorUserSettings s_EditorUserSettings;
 
         private static void InitBuild()
         {
             Debug.Log($"{nameof(BuildUtility)}.{nameof(InitBuild)}");
-            s_Settings = SettingsCopy.Create();
-            Debug.Log($"Settings: {s_Settings}");
+            s_EditorUserSettings = new EditorUserSettings();
+            Debug.Log($"Settings: {s_EditorUserSettings}");
             s_CurrentCommandLineArguments = Environment.GetCommandLineArgs();
             Debug.Log(
                 $"{nameof(BuildUtility)}.{nameof(InitBuild)}." +
@@ -72,7 +72,7 @@ namespace UnityExporter
         private static void FinishBuild()
         {
             Debug.Log($"{nameof(BuildUtility)}.{nameof(FinishBuild)}");
-            s_Settings.Apply();
+            s_EditorUserSettings.Apply();
         }
 
         private static string ReportToString(BuildReport report)
@@ -85,39 +85,40 @@ namespace UnityExporter
 
         public static void CreateBuild()
         {
-            // init
-            InitBuild();
+            if (!PlayerSettingsVersioner.IsValid())
+            {
+                Debug.LogError(
+                    $"{nameof(PlayerSettings)} not valid for this script. " +
+                    $"Verify that the '{nameof(PlayerSettings.bundleVersion)}' conforms to semantic versioning ({PlayerSettings.bundleVersion}). " +
+                    $"Verify that Android's version code ({PlayerSettings.Android.bundleVersionCode}) and " +
+                    $"iOS' build number ({PlayerSettings.iOS.buildNumber}) are positive integers.");
+                return;
+            }
 
+            InitBuild();
             EditorUserBuildSettings.development                  = false;
             EditorUserBuildSettings.exportAsGoogleAndroidProject = true;
-
-            if (!string.IsNullOrEmpty(s_Version))
-            {
-                PlayerSettings.bundleVersion = s_Version;
-            }
-
-            // if (s_VersionCode)
-            {
-                PlayerSettings.Android.bundleVersionCode++;
-                PlayerSettings.iOS.buildNumber = PlayerSettings.Android.bundleVersionCode.ToString();
-            }
+            new PlayerSettingsVersioner(s_Version, s_VersionCode).Apply();
 
             if (!string.IsNullOrEmpty(s_ExportPath))
             {
                 // Note that the following is set via batchmode parameter "buildTarget":
                 // - "UNITY_ANDROID", "UNITY_IOS", ...
                 // - EditorUserBuildSettings.activeBuildTarget, EditorUserBuildSettings.selectedBuildTargetGroup, ...
+
                 Directory.CreateDirectory(s_ExportPath);
                 Debug.Log(
-                    $"{nameof(CreateBuild)}.{s_Settings.buildTarget}: Starting build now. " +
-                    $"Define Symbols '{PlayerSettings.GetScriptingDefineSymbolsForGroup(s_Settings.buildTargetGroup)}'");
+                    $"{nameof(CreateBuild)}.{s_EditorUserSettings.buildTarget}: Starting build now. " +
+                    $"Define Symbols '{PlayerSettings.GetScriptingDefineSymbolsForGroup(s_EditorUserSettings.buildTargetGroup)}'");
+
                 var report = BuildPipeline.BuildPlayer(
                     s_ScenesInBuild,
                     s_ExportPath,
-                    s_Settings.buildTarget,
+                    s_EditorUserSettings.buildTarget,
                     BuildOptions.None);
+
                 Debug.Log(
-                    $"{nameof(BuildUtility)}.{nameof(CreateBuild)}.{s_Settings.buildTarget}.Report: " +
+                    $"{nameof(BuildUtility)}.{nameof(CreateBuild)}.{s_EditorUserSettings.buildTarget}.Report: " +
                     $"{ReportToString(report)}");
             }
 

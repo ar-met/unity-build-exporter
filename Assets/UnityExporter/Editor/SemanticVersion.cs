@@ -48,9 +48,9 @@ namespace UnityExporter
             return false;
         }
 
-        public uint major { get; private set; }
-        public uint minor { get; private set; }
-        public uint patch { get; private set; }
+        public uint major { get; set; }
+        public uint minor { get; set; }
+        public uint patch { get; set; }
 
         public override string ToString()
         {
