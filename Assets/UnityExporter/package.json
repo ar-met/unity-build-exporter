@@ -1,0 +1,12 @@
+{
+  "name": "unityexporter",
+  "displayName": "UnityExporter",
+  "version": "0.0.1",
+  "unity": "2020.3",
+  "description": "Provides interfaces and classes to serialize tagged components in a scene at runtime into a blob. Loading the blob will rebuild the scene at the time of saving.",
+  "keywords": [
+    "fastlane",
+    "export",
+    "build"
+  ]
+}
