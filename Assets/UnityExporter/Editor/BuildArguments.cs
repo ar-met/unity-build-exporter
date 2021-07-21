@@ -14,8 +14,8 @@ namespace UnityExporter
     {
         public const string k_Batchmode   = "batchmode";
         public const string k_ExportPath  = "exportPath";
-        public const string k_Version     = "version";
-        public const string k_VersionCode = "versionCode";
+        public const string k_Version     = "newVersion";
+        public const string k_VersionCode = "newVersionCode";
 
         private Dictionary<string, string> m_Arguments = new Dictionary<string, string>();
         private string[]                   m_BuildArguments;

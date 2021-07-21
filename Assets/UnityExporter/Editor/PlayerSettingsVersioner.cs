@@ -55,7 +55,7 @@ namespace UnityExporter
 
             if (!string.IsNullOrEmpty(newVersionCode))
             {
-                if (bool.TryParse(newVersionCode, out bool increment) && increment)
+                if (string.Equals("increment", newVersionCode))
                 {
                     this.newVersionCode = currentVersionCode + 1;
                 }
