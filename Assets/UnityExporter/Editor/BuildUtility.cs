@@ -53,7 +53,7 @@ namespace UnityExporter
 
         public static void CreateBuild()
         {
-            if (!PlayerSettingsVersioner.IsValid())
+            if (!PlayerSettingsVersioner.IsValid(out _))
             {
                 Debug.LogError(
                     $"{nameof(PlayerSettings)} not valid for this script. " +
@@ -67,10 +67,19 @@ namespace UnityExporter
 
             EditorUserBuildSettings.development                  = false;
             EditorUserBuildSettings.exportAsGoogleAndroidProject = true;
-            new PlayerSettingsVersioner(
-                    s_BuildArguments[BuildArguments.k_Version],
-                    s_BuildArguments[BuildArguments.k_VersionCode])
-                .Apply();
+
+            if (PlayerSettingsVersioner.TryParse(
+                s_BuildArguments[BuildArguments.k_Version],
+                s_BuildArguments[BuildArguments.k_VersionCode],
+                out PlayerSettingsVersioner playerSettingsVersioner))
+            {
+                playerSettingsVersioner.Apply();
+            }
+            else
+            {
+                Debug.LogError($"Cannot parse {nameof(PlayerSettings)} and/or version/version-code.");
+                return;
+            }
 
             if (!string.IsNullOrEmpty(s_BuildArguments[BuildArguments.k_ExportPath]))
             {
@@ -81,7 +90,7 @@ namespace UnityExporter
                 Directory.CreateDirectory(s_BuildArguments[BuildArguments.k_ExportPath]);
                 Debug.Log(
                     $"{nameof(CreateBuild)}.{s_EditorUserSettings.buildTarget}: Starting build now. " +
-                    $"Export path '{s_BuildArguments[BuildArguments.k_ExportPath]}'. "                 +
+                    $"Export path '{s_BuildArguments[BuildArguments.k_ExportPath]}'. "                +
                     $"Define Symbols '{PlayerSettings.GetScriptingDefineSymbolsForGroup(s_EditorUserSettings.buildTargetGroup)}'");
 
                 var report = BuildPipeline.BuildPlayer(

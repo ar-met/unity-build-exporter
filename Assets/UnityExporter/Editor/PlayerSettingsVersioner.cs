@@ -16,64 +16,12 @@ namespace UnityExporter
             Patch
         }
 
-        public PlayerSettingsVersioner(string newVersion, string newVersionCode)
-        {
-            if (!string.IsNullOrEmpty(newVersion))
-            {
-                if (Enum.TryParse(newVersion, true, out Bump bump))
-                {
-                    if (SemanticVersion.TryParse(PlayerSettings.bundleVersion, out var semanticVersion))
-                    {
-                        switch (bump)
-                        {
-                            case Bump.Major:
-                                semanticVersion.major++;
-                                break;
-                            case Bump.Minor:
-                                semanticVersion.minor++;
-                                break;
-                            case Bump.Patch:
-                                semanticVersion.patch++;
-                                break;
-                        }
+        private PlayerSettingsVersioner() { }
 
-                        this.newVersion = semanticVersion;
-                    }
-                }
-                else if (SemanticVersion.TryParse(newVersion, out var semanticVersion))
-                {
-                    this.newVersion = semanticVersion;
-                }
-            }
-            else
-            {
-                if (SemanticVersion.TryParse(PlayerSettings.bundleVersion, out SemanticVersion semanticVersion))
-                {
-                    this.newVersion = semanticVersion;
-                }
-            }
+        public SemanticVersion version     { get; private set; }
+        public int             versionCode { get; private set; }
 
-            if (!string.IsNullOrEmpty(newVersionCode))
-            {
-                if (string.Equals("increment", newVersionCode))
-                {
-                    this.newVersionCode = currentVersionCode + 1;
-                }
-                else if (int.TryParse(newVersionCode, out int newVersionCodeAsInt) && newVersionCodeAsInt >= 0)
-                {
-                    this.newVersionCode = newVersionCodeAsInt;
-                }
-            }
-            else
-            {
-                this.newVersionCode = currentVersionCode;
-            }
-        }
-
-        public SemanticVersion newVersion     { get; }
-        public int             newVersionCode { get; }
-
-        private int currentVersionCode
+        private static int currentVersionCode
         {
             get
             {
@@ -90,9 +38,73 @@ namespace UnityExporter
 
         public void Apply()
         {
-            PlayerSettings.bundleVersion             = newVersion.ToString();
-            PlayerSettings.Android.bundleVersionCode = newVersionCode;
-            PlayerSettings.iOS.buildNumber           = newVersionCode.ToString();
+            PlayerSettings.bundleVersion             = version.ToString();
+            PlayerSettings.Android.bundleVersionCode = versionCode;
+            PlayerSettings.iOS.buildNumber           = versionCode.ToString();
+        }
+
+        public static bool TryParse(
+            string newVersion, string newVersionCode, out PlayerSettingsVersioner playerSettingsVersioner)
+        {
+            if (!IsValid(out var currentVersion))
+            {
+                playerSettingsVersioner = null;
+                return false;
+            }
+
+            playerSettingsVersioner = new PlayerSettingsVersioner
+            {
+                version     = currentVersion,
+                versionCode = currentVersionCode
+            };
+
+            if (string.IsNullOrEmpty(newVersion) || string.IsNullOrEmpty(newVersionCode))
+            {
+                return true;
+            }
+
+            // new version
+            if (Enum.TryParse(newVersion, true, out Bump bump))
+            {
+                switch (bump)
+                {
+                    case Bump.Major:
+                        playerSettingsVersioner.version.major++;
+                        break;
+                    case Bump.Minor:
+                        playerSettingsVersioner.version.minor++;
+                        break;
+                    case Bump.Patch:
+                        playerSettingsVersioner.version.patch++;
+                        break;
+                }
+            }
+            else if (SemanticVersion.TryParse(newVersion, out var newSemanticVersion))
+            {
+                playerSettingsVersioner.version = newSemanticVersion;
+            }
+            else
+            {
+                Debug.LogError($"Cannot parse new version '{newVersion}'.");
+                return false;
+            }
+
+            // version code
+            if (string.Equals("increment", newVersionCode))
+            {
+                playerSettingsVersioner.versionCode = currentVersionCode + 1;
+            }
+            else if (int.TryParse(newVersionCode, out int newVersionCodeAsInt) && newVersionCodeAsInt >= 0)
+            {
+                playerSettingsVersioner.versionCode = newVersionCodeAsInt;
+            }
+            else
+            {
+                Debug.LogError($"Cannot parse new version code '{newVersionCode}'.");
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -101,12 +113,12 @@ namespace UnityExporter
         ///     <see cref="PlayerSettings.iOS.buildNumber" />.
         /// </summary>
         /// <returns>'true' if valid, 'false' otherwise.</returns>
-        public static bool IsValid()
+        public static bool IsValid(out SemanticVersion currentVersion)
         {
             return
-                SemanticVersion.TryParse(PlayerSettings.bundleVersion, out _) &&
-                PlayerSettings.Android.bundleVersionCode >= 0                 &&
-                int.TryParse(PlayerSettings.iOS.buildNumber, out int iosCode) &&
+                SemanticVersion.TryParse(PlayerSettings.bundleVersion, out currentVersion) &&
+                PlayerSettings.Android.bundleVersionCode >= 0                              &&
+                int.TryParse(PlayerSettings.iOS.buildNumber, out int iosCode)              &&
                 iosCode >= 0;
         }
     }
