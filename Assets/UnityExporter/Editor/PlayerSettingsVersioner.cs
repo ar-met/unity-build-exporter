@@ -18,38 +18,55 @@ namespace UnityExporter
 
         public PlayerSettingsVersioner(string newVersion, string newVersionCode)
         {
-            if (Enum.TryParse(newVersion, true, out Bump bump))
+            if (!string.IsNullOrEmpty(newVersion))
             {
-                if (SemanticVersion.TryParse(PlayerSettings.bundleVersion, out var semanticVersion))
+                if (Enum.TryParse(newVersion, true, out Bump bump))
                 {
-                    switch (bump)
+                    if (SemanticVersion.TryParse(PlayerSettings.bundleVersion, out var semanticVersion))
                     {
-                        case Bump.Major:
-                            semanticVersion.major++;
-                            break;
-                        case Bump.Minor:
-                            semanticVersion.minor++;
-                            break;
-                        case Bump.Patch:
-                            semanticVersion.patch++;
-                            break;
-                    }
+                        switch (bump)
+                        {
+                            case Bump.Major:
+                                semanticVersion.major++;
+                                break;
+                            case Bump.Minor:
+                                semanticVersion.minor++;
+                                break;
+                            case Bump.Patch:
+                                semanticVersion.patch++;
+                                break;
+                        }
 
+                        this.newVersion = semanticVersion;
+                    }
+                }
+                else if (SemanticVersion.TryParse(newVersion, out var semanticVersion))
+                {
                     this.newVersion = semanticVersion;
                 }
             }
-            else if (SemanticVersion.TryParse(newVersion, out var semanticVersion))
+            else
             {
-                this.newVersion = semanticVersion;
+                if (SemanticVersion.TryParse(PlayerSettings.bundleVersion, out SemanticVersion semanticVersion))
+                {
+                    this.newVersion = semanticVersion;
+                }
             }
 
-            if (bool.TryParse(newVersionCode, out bool increment) && increment)
+            if (!string.IsNullOrEmpty(newVersionCode))
             {
-                this.newVersionCode = currentVersionCode + 1;
+                if (bool.TryParse(newVersionCode, out bool increment) && increment)
+                {
+                    this.newVersionCode = currentVersionCode + 1;
+                }
+                else if (int.TryParse(newVersionCode, out int newVersionCodeAsInt) && newVersionCodeAsInt >= 0)
+                {
+                    this.newVersionCode = newVersionCodeAsInt;
+                }
             }
-            else if (int.TryParse(newVersionCode, out int newVersionCodeAsInt) && newVersionCodeAsInt >= 0)
+            else
             {
-                this.newVersionCode = newVersionCodeAsInt;
+                this.newVersionCode = currentVersionCode;
             }
         }
 

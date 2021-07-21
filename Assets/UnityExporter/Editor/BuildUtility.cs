@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
@@ -11,50 +10,19 @@ namespace UnityExporter
 {
     internal static class BuildUtility
     {
-        private static string[] s_CurrentCommandLineArguments;
-        private static string   s_ExportPath;
-
-        private static string[] s_ScenesInBuild;
-
-        private static string s_Version;
-        private static string s_VersionCode;
-        private static bool   s_IsBatchmode;
-
         private static EditorUserSettings s_EditorUserSettings;
+        private static BuildArguments     s_BuildArguments;
+        private static string[]           s_ScenesInBuild;
 
         private static void InitBuild()
         {
             Debug.Log($"{nameof(BuildUtility)}.{nameof(InitBuild)}");
+
             s_EditorUserSettings = new EditorUserSettings();
-            Debug.Log($"Settings: {s_EditorUserSettings}");
-            s_CurrentCommandLineArguments = Environment.GetCommandLineArgs();
-            Debug.Log(
-                $"{nameof(BuildUtility)}.{nameof(InitBuild)}." +
-                $"CommandlineArgs: '{s_CurrentCommandLineArguments.ElementsToString()}'");
+            Debug.Log($"{nameof(EditorUserSettings)} -- {s_EditorUserSettings}");
 
-            for (int i = 0; i < s_CurrentCommandLineArguments.Length; i++)
-            {
-                if (s_CurrentCommandLineArguments[i].Contains("exportPath"))
-                {
-                    s_ExportPath = s_CurrentCommandLineArguments[++i];
-                }
-                else if (s_CurrentCommandLineArguments[i].Contains("batchmode"))
-                {
-                    s_IsBatchmode = true;
-                }
-                else if (s_CurrentCommandLineArguments[i].Contains("version"))
-                {
-                    s_Version = s_CurrentCommandLineArguments[++i];
-                }
-                else if (s_CurrentCommandLineArguments[i].Contains("versionCode"))
-                {
-                    s_VersionCode = s_CurrentCommandLineArguments[++i];
-                }
-            }
-
-            Debug.Log($"{nameof(BuildUtility)}.{nameof(InitBuild)}.newVersion: "           + s_Version);
-            Debug.Log($"{nameof(BuildUtility)}.{nameof(InitBuild)}.incrementVersionCode: " + s_VersionCode);
-            Debug.Log($"{nameof(BuildUtility)}.{nameof(InitBuild)}.exportPath: "           + s_ExportPath);
+            s_BuildArguments = new BuildArguments();
+            Debug.Log($"{nameof(BuildArguments)} -- {s_BuildArguments}");
 
             s_ScenesInBuild = EditorBuildSettings
                               .scenes
@@ -96,24 +64,29 @@ namespace UnityExporter
             }
 
             InitBuild();
+
             EditorUserBuildSettings.development                  = false;
             EditorUserBuildSettings.exportAsGoogleAndroidProject = true;
-            new PlayerSettingsVersioner(s_Version, s_VersionCode).Apply();
+            new PlayerSettingsVersioner(
+                    s_BuildArguments[BuildArguments.k_Version],
+                    s_BuildArguments[BuildArguments.k_VersionCode])
+                .Apply();
 
-            if (!string.IsNullOrEmpty(s_ExportPath))
+            if (!string.IsNullOrEmpty(s_BuildArguments[BuildArguments.k_ExportPath]))
             {
                 // Note that the following is set via batchmode parameter "buildTarget":
                 // - "UNITY_ANDROID", "UNITY_IOS", ...
                 // - EditorUserBuildSettings.activeBuildTarget, EditorUserBuildSettings.selectedBuildTargetGroup, ...
 
-                Directory.CreateDirectory(s_ExportPath);
+                Directory.CreateDirectory(s_BuildArguments[BuildArguments.k_ExportPath]);
                 Debug.Log(
                     $"{nameof(CreateBuild)}.{s_EditorUserSettings.buildTarget}: Starting build now. " +
+                    $"Export path '{s_BuildArguments[BuildArguments.k_ExportPath]}'. "                 +
                     $"Define Symbols '{PlayerSettings.GetScriptingDefineSymbolsForGroup(s_EditorUserSettings.buildTargetGroup)}'");
 
                 var report = BuildPipeline.BuildPlayer(
                     s_ScenesInBuild,
-                    s_ExportPath,
+                    s_BuildArguments[BuildArguments.k_ExportPath],
                     s_EditorUserSettings.buildTarget,
                     BuildOptions.None);
 
