@@ -10,7 +10,7 @@ namespace UnityExporter
     ///     Filters all arguments relevant for building and exporting from <see cref="Environment.GetEnvironmentVariables()" />
     ///     .
     /// </summary>
-    public class BuildArguments
+    internal class BuildArguments
     {
         public const string k_Batchmode   = "batchmode";
         public const string k_ExportPath  = "exportPath";

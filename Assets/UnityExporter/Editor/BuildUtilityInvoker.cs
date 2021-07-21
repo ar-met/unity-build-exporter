@@ -2,7 +2,7 @@ using UnityEditor;
 
 namespace UnityExporter
 {
-    public static class BuildUtilityInvoker
+    internal static class BuildUtilityInvoker
     {
 #if UNITY_EXPORTER_DEV
         [MenuItem("UnityExporter/" + nameof(BuildCurrentTarget))]
