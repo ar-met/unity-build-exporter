@@ -11,8 +11,21 @@ namespace UnityExporter
     /// </summary>
     internal static class FastlaneInit
     {
+        /// <summary>
+        ///     Note that the 'fastlane plugin' expects this path.
+        /// </summary>
         private const string k_DefaultBasePath = "fastlane-build-exporter";
-        private const string k_GitKeep         = ".gitkeep";
+
+        private const string k_GitKeep = ".gitkeep";
+
+        private const string k_GitignoreFastlaneExporterFiles =
+            @"
+# fastlane plugin unity exporter
+fastlane-build-exporter/*/unity-export/*
+fastlane-build-exporter/*/fastlane/report.xml
+fastlane-build-exporter/*/.bundle
+fastlane-build-exporter/**/*.log
+";
 
         private static string GetFastlaneExportParentDirectory(BuildTarget buildTarget)
         {
@@ -28,13 +41,18 @@ namespace UnityExporter
             return Path.Combine(GetFastlaneExportParentDirectory(buildTarget), k_GitKeep);
         }
 
+        private static string GetFastlaneExportUnityBuildDirectory(BuildTarget buildTarget)
+        {
+            return Path.Combine(GetFastlaneExportParentDirectory(buildTarget), "unity-export");
+        }
+
         private static void PrintAdditionalInformation(BuildTarget buildTarget)
         {
             Debug.Log(
-                $"Initialized 'fastlane' for '{buildTarget}'. "                                        +
-                "Please commit your '.gitkeep' to add the created intermediate directories to 'git'. " +
-                "Now navigate to the directory and 'fastlane init'. "                                  +
-                "For more information on 'fastlane' see: "                                             +
+                $"Initialized 'fastlane' for '{buildTarget}'. " +
+                "Please commit your '.gitignore' and '.gitkeep' via 'git'. " +
+                $"Now navigate to the directory '{GetFastlaneExportParentDirectory(buildTarget)}' and 'fastlane init'. " +
+                "For more information on 'fastlane' see: " +
                 $"<color=cyan>https://docs.fastlane.tools/getting-started/{buildTarget.ToString().ToLower()}/setup/</color>."
             );
 
@@ -61,14 +79,39 @@ namespace UnityExporter
             return notRestrictedByEditorPlatform && !File.Exists(GetFastlaneExportGitKeepFile(buildTarget));
         }
 
+        private static void AppendToGitIgnore()
+        {
+            string gitignorePath = Path.Combine(Application.dataPath, "..", ".gitignore");
+            if (!File.Exists(gitignorePath))
+                File.Create(gitignorePath);
+
+            string gitignoreContent = File.ReadAllText(gitignorePath);
+            if (!gitignoreContent.Contains(k_GitignoreFastlaneExporterFiles))
+                File.AppendAllText(gitignorePath, k_GitignoreFastlaneExporterFiles);
+        }
+
         private static void InitializeFastlane(BuildTarget buildTarget)
         {
             Directory.CreateDirectory(GetFastlaneExportParentDirectory(buildTarget));
             File.Create(GetFastlaneExportGitKeepFile(buildTarget));
 
-            // TODO export build
+            // TODO refactor BuildUtility such that we can use the CreateBuild method (?)
+            bool tmpDevelopment                  = EditorUserBuildSettings.development;
+            bool tmpExportAsGoogleAndroidProject = EditorUserBuildSettings.exportAsGoogleAndroidProject;
+            EditorUserBuildSettings.development                  = false;
+            EditorUserBuildSettings.exportAsGoogleAndroidProject = true;
+
+            BuildPipeline.BuildPlayer(
+                new string[0],
+                GetFastlaneExportUnityBuildDirectory(buildTarget),
+                buildTarget,
+                BuildOptions.None);
+
+            EditorUserBuildSettings.development                  = tmpDevelopment;
+            EditorUserBuildSettings.exportAsGoogleAndroidProject = tmpExportAsGoogleAndroidProject;
 
             PrintAdditionalInformation(buildTarget);
+            AppendToGitIgnore();
         }
 
 #region Android
