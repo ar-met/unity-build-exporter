@@ -5,7 +5,7 @@ namespace UnityExporter
     internal static class BuildUtilityInvoker
     {
 #if UNITY_EXPORTER_DEV
-        [MenuItem("UnityExporter/" + nameof(BuildCurrentTarget))]
+        [MenuItem(Constants.k_MenuItemBaseName + nameof(BuildCurrentTarget))]
         private static void BuildCurrentTarget()
         {
             if (EditorUserBuildSettings.selectedBuildTargetGroup != BuildTargetGroup.Android &&
