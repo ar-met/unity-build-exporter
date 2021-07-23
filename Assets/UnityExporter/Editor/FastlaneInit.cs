@@ -78,7 +78,12 @@ fastlane-build-exporter/**/*.log
                 Application.platform == RuntimePlatform.OSXEditor &&
                 (buildTarget == BuildTarget.Android || buildTarget == BuildTarget.iOS);
 
-            return notRestrictedByEditorPlatform && !File.Exists(GetFastlaneExportGitKeepFile(buildTarget));
+            return notRestrictedByEditorPlatform
+                // when developing we always want to be able to start the initialization
+#if !UNITY_EXPORTER_DEV
+                   && !File.Exists(GetFastlaneExportGitKeepFile(buildTarget))
+#endif
+                ;
         }
 
         private static void AppendToGitIgnore()
