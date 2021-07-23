@@ -50,9 +50,11 @@ fastlane-build-exporter/**/*.log
         {
             Debug.Log(
                 $"Initialized 'fastlane' for '{buildTarget}'. " +
-                "Please commit your '.gitignore' and '.gitkeep' via 'git'. " +
-                $"Now navigate to the directory '{GetFastlaneExportParentDirectory(buildTarget)}' and 'fastlane init'. " +
-                "For more information on 'fastlane' see: " +
+                "Please commit your '.gitignore' and '.gitkeep' via 'git'.");
+
+            Debug.Log(
+                "Now 'fastlane init' in directory '{GetFastlaneExportParentDirectory(buildTarget)}'. " +
+                "For more information on 'fastlane' see: "                                             +
                 $"<color=cyan>https://docs.fastlane.tools/getting-started/{buildTarget.ToString().ToLower()}/setup/</color>."
             );
 
