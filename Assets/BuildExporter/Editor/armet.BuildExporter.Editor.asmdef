@@ -1,6 +1,6 @@
 {
     "name": "UnityExporter.Editor",
-    "rootNamespace": "UnityExporter",
+    "rootNamespace": "armet.BuildExporter",
     "references": [],
     "includePlatforms": [
         "Editor"

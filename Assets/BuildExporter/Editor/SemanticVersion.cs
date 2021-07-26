@@ -2,7 +2,7 @@ using System;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-namespace UnityExporter
+namespace armet.BuildExporter
 {
     /// <summary>
     ///     Simple semantic version helper. See: https://semver.org/

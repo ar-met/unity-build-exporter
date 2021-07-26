@@ -1,6 +1,6 @@
 using UnityEditor;
 
-namespace UnityExporter
+namespace armet.BuildExporter
 {
     /// <summary>
     ///     Saves settings of the Editor user in <see cref="EditorUserBuildSettings" /> and <see cref="PlayerSettings" />

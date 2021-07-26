@@ -2,7 +2,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace UnityExporter
+namespace armet.BuildExporter
 {
     /// <summary>
     ///     Helps managing version and version-code/build-number in <see cref="PlayerSettings" />.

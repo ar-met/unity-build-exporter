@@ -6,7 +6,7 @@ using UnityEngine;
 
 // ReSharper disable UnusedMember.Global
 
-namespace UnityExporter
+namespace armet.BuildExporter
 {
     internal static class BuildUtility
     {

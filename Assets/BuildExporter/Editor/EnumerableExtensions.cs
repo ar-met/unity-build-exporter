@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace UnityExporter
+namespace armet.BuildExporter
 {
     internal static class EnumerableExtensions
     {

@@ -2,7 +2,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace UnityExporter
+namespace armet.BuildExporter
 {
     /// <summary>
     ///     Provides <see cref="UnityEditor.MenuItem" /> entries to help initialize directories that work with

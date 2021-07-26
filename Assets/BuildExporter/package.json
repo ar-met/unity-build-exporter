@@ -1,0 +1,22 @@
+{
+  "name": "io.armet.unity.buildexporter",
+  "displayName": "BuildExporter",
+  "version": "0.0.1",
+  "unity": "2020.3",
+  "description": "Provides an interface for exporting Unity projects via batchmode. The interface also helps with versioning. See: https://docs.unity3d.com/Manual/CommandLineArguments.html",
+  "keywords": [
+    "build",
+    "export",
+    "batchmode",
+    "commandline",
+    "fastlane"
+  ],
+  "repository": {
+    "url": "https://github.com/ar-met/unity-build-exporter",
+    "type": "git"
+  },
+  "author": {
+    "name": "ar:met",
+    "url": "https://www.armet.at/"
+  }
+}

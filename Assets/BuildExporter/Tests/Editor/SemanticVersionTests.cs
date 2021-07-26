@@ -3,7 +3,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace UnityExporter.Tests
+namespace armet.BuildExporter.Tests
 {
     internal class SemanticVersionTests
     {

@@ -4,7 +4,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace UnityExporter
+namespace armet.BuildExporter
 {
     /// <summary>
     ///     Filters all arguments relevant for building and exporting from <see cref="Environment.GetEnvironmentVariables()" />

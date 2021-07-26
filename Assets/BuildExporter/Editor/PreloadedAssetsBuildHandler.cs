@@ -5,7 +5,7 @@ using UnityEditor.Build.Reporting;
 using UnityEditor.Callbacks;
 using UnityEngine;
 
-namespace UnityExporter
+namespace armet.BuildExporter
 {
     /// <summary>
     ///     Note that the 'PreloadedAssets' change during build. To not mess with Git, we cache them before build

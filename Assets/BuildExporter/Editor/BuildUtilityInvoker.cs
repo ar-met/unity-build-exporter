@@ -1,6 +1,6 @@
 using UnityEditor;
 
-namespace UnityExporter
+namespace armet.BuildExporter
 {
     internal static class BuildUtilityInvoker
     {
