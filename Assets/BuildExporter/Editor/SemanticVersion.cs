@@ -2,13 +2,13 @@ using System;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-namespace UnityExporter
+namespace armet.BuildExporter
 {
     /// <summary>
     ///     Simple semantic version helper. See: https://semver.org/
     /// </summary>
     // TODO improve: might not be the cleanest implementation, but it works
-    public class SemanticVersion
+    internal class SemanticVersion
     {
         public static bool TryParse(string versionString, out SemanticVersion semanticVersion)
         {
@@ -48,9 +48,9 @@ namespace UnityExporter
             return false;
         }
 
-        public uint major { get; private set; }
-        public uint minor { get; private set; }
-        public uint patch { get; private set; }
+        public uint major { get; set; }
+        public uint minor { get; set; }
+        public uint patch { get; set; }
 
         public override string ToString()
         {

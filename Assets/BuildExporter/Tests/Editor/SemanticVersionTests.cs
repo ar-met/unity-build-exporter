@@ -3,9 +3,9 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace UnityExporter.Tests
+namespace armet.BuildExporter.Tests
 {
-    public class SemanticVersionTests
+    internal class SemanticVersionTests
     {
         [Test]
         public void TryParse_01()

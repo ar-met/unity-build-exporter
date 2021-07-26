@@ -1,10 +1,10 @@
 {
     "name": "UnityExporter.Tests.Editor",
-    "rootNamespace": "UnityExporter",
+    "rootNamespace": "armet.BuildExporter",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "UnityExporter"
+        "UnityExporter.Editor"
     ],
     "includePlatforms": [
         "Editor"

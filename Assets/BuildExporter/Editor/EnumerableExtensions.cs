@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Text;
 
-namespace UnityExporter
+namespace armet.BuildExporter
 {
-    public static class EnumerableExtensions
+    internal static class EnumerableExtensions
     {
         public static string ElementsToString<T>(this IEnumerable<T> enumerable)
         {
