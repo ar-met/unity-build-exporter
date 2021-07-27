@@ -67,6 +67,9 @@ namespace armet.BuildExporter
 
             EditorUserBuildSettings.development                  = false;
             EditorUserBuildSettings.exportAsGoogleAndroidProject = true;
+            PlayerSettings.SetScriptingBackend(
+                EditorUserBuildSettings.selectedBuildTargetGroup,
+                ScriptingImplementation.IL2CPP);
 
             if (PlayerSettingsVersioner.TryParse(
                 s_BuildArguments[BuildArguments.k_Version],
