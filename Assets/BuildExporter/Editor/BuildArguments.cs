@@ -33,7 +33,9 @@ namespace armet.BuildExporter
             {
                 foreach (string identifier in identifiers)
                 {
-                    if (m_BuildArguments[i].Contains(identifier) && !m_Arguments.ContainsKey(identifier))
+                    string buildArgument = m_BuildArguments[i].TrimStart('-');
+                    if (buildArgument.Equals(identifier, StringComparison.InvariantCultureIgnoreCase) &&
+                        !m_Arguments.ContainsKey(identifier))
                     {
                         m_Arguments.Add(identifier, m_BuildArguments[++i]);
                     }
