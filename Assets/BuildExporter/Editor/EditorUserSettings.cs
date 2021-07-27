@@ -18,6 +18,7 @@ namespace armet.BuildExporter
                     EditorUserBuildSettings.selectedBuildTargetGroup);
             developmentBuildFlag      = EditorUserBuildSettings.development;
             exportAsGoogleAndroidFlag = EditorUserBuildSettings.exportAsGoogleAndroidProject;
+            buildAppBundle            = EditorUserBuildSettings.buildAppBundle;
         }
 
         public BuildTarget      buildTarget               { get; private set; }
@@ -25,22 +26,25 @@ namespace armet.BuildExporter
         public string           scriptingDefineSymbols    { get; private set; }
         public bool             developmentBuildFlag      { get; private set; }
         public bool             exportAsGoogleAndroidFlag { get; private set; }
+        public bool             buildAppBundle            { get; private set; }
 
         public void Apply()
         {
             EditorUserBuildSettings.development                  = developmentBuildFlag;
             EditorUserBuildSettings.exportAsGoogleAndroidProject = exportAsGoogleAndroidFlag;
+            EditorUserBuildSettings.buildAppBundle               = buildAppBundle;
             PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, scriptingDefineSymbols);
         }
 
         public override string ToString()
         {
             return
-                $"{nameof(buildTarget)}: {buildTarget}, "                       +
-                $"{nameof(buildTargetGroup)}: {buildTargetGroup}, "             +
-                $"{nameof(scriptingDefineSymbols)}: {scriptingDefineSymbols}, " +
-                $"{nameof(developmentBuildFlag)}: {developmentBuildFlag}, "     +
-                $"{nameof(exportAsGoogleAndroidFlag)}: {exportAsGoogleAndroidFlag}";
+                $"{nameof(buildTarget)}: {buildTarget}, "                             +
+                $"{nameof(buildTargetGroup)}: {buildTargetGroup}, "                   +
+                $"{nameof(scriptingDefineSymbols)}: {scriptingDefineSymbols}, "       +
+                $"{nameof(developmentBuildFlag)}: {developmentBuildFlag}, "           +
+                $"{nameof(exportAsGoogleAndroidFlag)}: {exportAsGoogleAndroidFlag}, " +
+                $"{nameof(buildAppBundle)}: {buildAppBundle}";
         }
     }
 }

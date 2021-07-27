@@ -100,8 +100,43 @@ namespace armet.BuildExporter
                     BuildOptions.None);
 
                 Debug.Log(
-                    $"{nameof(BuildUtility)}.{nameof(CreateBuild)}.{s_EditorUserSettings.buildTarget}.Report: " +
+                    $"{nameof(BuildUtility)}.{nameof(CreateBuild)}.{s_EditorUserSettings.buildTarget}.{nameof(report)}: " +
                     $"{ReportToString(report)}");
+
+                // When we export for Android, we use Unity to also provide an aab file.
+                // This has many benefits as Unity will handle signing, split binaries, etc. 
+                if (s_EditorUserSettings.buildTarget == BuildTarget.Android)
+                {
+                    EditorUserBuildSettings.exportAsGoogleAndroidProject = true;
+                    Debug.Log(
+                        $"Running on {BuildTarget.Android}: We must not only export the project, " +
+                        "but also build the aab file.");
+                    Debug.Log(
+                        $"{nameof(CreateBuild)}.{s_EditorUserSettings.buildTarget}: Starting build now. " +
+                        $"Export path '{s_BuildArguments[BuildArguments.k_ExportPath]}'. "                +
+                        $"Define Symbols '{PlayerSettings.GetScriptingDefineSymbolsForGroup(s_EditorUserSettings.buildTargetGroup)}'");
+
+                    EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
+                    EditorUserBuildSettings.buildAppBundle               = true;
+
+                    string aabPath = s_BuildArguments[BuildArguments.k_ExportPath];
+                    if (new DirectoryInfo(aabPath) is DirectoryInfo info)
+                    {
+                        aabPath = Path.Combine(
+                            aabPath,
+                            $"{PlayerSettings.bundleVersion}-{PlayerSettings.Android.bundleVersionCode}.aab");
+                    }
+
+                    var reportAAB = BuildPipeline.BuildPlayer(
+                        s_ScenesInBuild,
+                        aabPath,
+                        s_EditorUserSettings.buildTarget,
+                        BuildOptions.None);
+
+                    Debug.Log(
+                        $"{nameof(BuildUtility)}.{nameof(CreateBuild)}.{s_EditorUserSettings.buildTarget}.{nameof(reportAAB)}: " +
+                        $"{ReportToString(reportAAB)}");
+                }
             }
 
             // finish
