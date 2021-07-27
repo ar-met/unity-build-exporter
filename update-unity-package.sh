@@ -8,6 +8,6 @@ git merge develop --no-ff
 # 4) getting the actual version number (note that "sed" requires extended regex for "+" to be recognised, therefore we simply use "[0-9][0-9]*" to let it know we want minium one digit)
 version=$(find Assets -name "package.json" | xargs cat | egrep "\"version\": " | sed 's/.*version.*\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/')
 
-git tag ${version} upm
+git tag ${version} master
 git push --all
 git push --tags
