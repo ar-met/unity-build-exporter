@@ -41,6 +41,9 @@ namespace armet.BuildExporter
             PlayerSettings.bundleVersion             = version.ToString();
             PlayerSettings.Android.bundleVersionCode = versionCode;
             PlayerSettings.iOS.buildNumber           = versionCode.ToString();
+
+            // saving changes applied to PlayerSettings
+            AssetDatabase.SaveAssets();
         }
 
         public static bool TryParse(
@@ -58,50 +61,51 @@ namespace armet.BuildExporter
                 versionCode = currentVersionCode
             };
 
-            if (string.IsNullOrEmpty(newVersion) || string.IsNullOrEmpty(newVersionCode))
-            {
-                return true;
-            }
-
             // new version
-            if (Enum.TryParse(newVersion, true, out Bump bump))
+            if (!string.IsNullOrEmpty(newVersion))
             {
-                switch (bump)
+                if (Enum.TryParse(newVersion, true, out Bump bump))
                 {
-                    case Bump.Major:
-                        playerSettingsVersioner.version.major++;
-                        break;
-                    case Bump.Minor:
-                        playerSettingsVersioner.version.minor++;
-                        break;
-                    case Bump.Patch:
-                        playerSettingsVersioner.version.patch++;
-                        break;
+                    switch (bump)
+                    {
+                        case Bump.Major:
+                            playerSettingsVersioner.version.major++;
+                            break;
+                        case Bump.Minor:
+                            playerSettingsVersioner.version.minor++;
+                            break;
+                        case Bump.Patch:
+                            playerSettingsVersioner.version.patch++;
+                            break;
+                    }
                 }
-            }
-            else if (SemanticVersion.TryParse(newVersion, out var newSemanticVersion))
-            {
-                playerSettingsVersioner.version = newSemanticVersion;
-            }
-            else
-            {
-                Debug.LogError($"Cannot parse new version '{newVersion}'.");
-                return false;
+                else if (SemanticVersion.TryParse(newVersion, out var newSemanticVersion))
+                {
+                    playerSettingsVersioner.version = newSemanticVersion;
+                }
+                else
+                {
+                    Debug.LogError($"Cannot parse new version '{newVersion}'.");
+                    return false;
+                }
             }
 
             // version code
-            if (string.Equals("increment", newVersionCode))
+            if (!string.IsNullOrEmpty(newVersionCode))
             {
-                playerSettingsVersioner.versionCode = currentVersionCode + 1;
-            }
-            else if (int.TryParse(newVersionCode, out int newVersionCodeAsInt) && newVersionCodeAsInt >= 0)
-            {
-                playerSettingsVersioner.versionCode = newVersionCodeAsInt;
-            }
-            else
-            {
-                Debug.LogError($"Cannot parse new version code '{newVersionCode}'.");
-                return false;
+                if (string.Equals("increment", newVersionCode))
+                {
+                    playerSettingsVersioner.versionCode = currentVersionCode + 1;
+                }
+                else if (int.TryParse(newVersionCode, out int newVersionCodeAsInt) && newVersionCodeAsInt >= 0)
+                {
+                    playerSettingsVersioner.versionCode = newVersionCodeAsInt;
+                }
+                else
+                {
+                    Debug.LogError($"Cannot parse new version code '{newVersionCode}'.");
+                    return false;
+                }
             }
 
             return true;
@@ -121,5 +125,16 @@ namespace armet.BuildExporter
                 int.TryParse(PlayerSettings.iOS.buildNumber, out int iosCode)              &&
                 iosCode >= 0;
         }
+
+#if UNITY_EXPORTER_DEV
+        [MenuItem(Constants.k_MenuItemBaseName + nameof(IncrementVersionCode))]
+        private static void IncrementVersionCode()
+        {
+            if (TryParse(null, "increment", out var playerSettingsVersioner))
+            {
+                playerSettingsVersioner.Apply();
+            }
+        }
+#endif
     }
 }
