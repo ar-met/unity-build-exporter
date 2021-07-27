@@ -1,7 +1,7 @@
 {
   "name": "io.armet.unity.buildexporter",
   "displayName": "BuildExporter",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "unity": "2020.3",
   "description": "Provides an execute method that handles versioning dependent on passed commandline arguments. These are custom commandline arguments that are parsed by this package in addition to all other commandline arguments that Unity supports per default when run in batchmode. For a more detailed explanation please see the README that is part of this package.",
   "keywords": [
