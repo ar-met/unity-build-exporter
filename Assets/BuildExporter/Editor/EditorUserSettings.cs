@@ -13,20 +13,25 @@ namespace armet.BuildExporter
         {
             buildTarget      = EditorUserBuildSettings.activeBuildTarget;
             buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+
             scriptingDefineSymbols =
                 PlayerSettings.GetScriptingDefineSymbolsForGroup(
                     EditorUserBuildSettings.selectedBuildTargetGroup);
+
             developmentBuildFlag      = EditorUserBuildSettings.development;
             exportAsGoogleAndroidFlag = EditorUserBuildSettings.exportAsGoogleAndroidProject;
             buildAppBundle            = EditorUserBuildSettings.buildAppBundle;
+
+            scriptingBackend = PlayerSettings.GetScriptingBackend(EditorUserBuildSettings.selectedBuildTargetGroup);
         }
 
-        public BuildTarget      buildTarget               { get; private set; }
-        public BuildTargetGroup buildTargetGroup          { get; private set; }
-        public string           scriptingDefineSymbols    { get; private set; }
-        public bool             developmentBuildFlag      { get; private set; }
-        public bool             exportAsGoogleAndroidFlag { get; private set; }
-        public bool             buildAppBundle            { get; private set; }
+        public BuildTarget             buildTarget               { get; private set; }
+        public BuildTargetGroup        buildTargetGroup          { get; private set; }
+        public string                  scriptingDefineSymbols    { get; private set; }
+        public bool                    developmentBuildFlag      { get; private set; }
+        public bool                    exportAsGoogleAndroidFlag { get; private set; }
+        public bool                    buildAppBundle            { get; private set; }
+        public ScriptingImplementation scriptingBackend          { get; private set; }
 
         public void Apply()
         {
@@ -34,6 +39,7 @@ namespace armet.BuildExporter
             EditorUserBuildSettings.exportAsGoogleAndroidProject = exportAsGoogleAndroidFlag;
             EditorUserBuildSettings.buildAppBundle               = buildAppBundle;
             PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, scriptingDefineSymbols);
+            PlayerSettings.SetScriptingBackend(buildTargetGroup, scriptingBackend);
         }
 
         public override string ToString()
@@ -44,7 +50,8 @@ namespace armet.BuildExporter
                 $"{nameof(scriptingDefineSymbols)}: {scriptingDefineSymbols}, "       +
                 $"{nameof(developmentBuildFlag)}: {developmentBuildFlag}, "           +
                 $"{nameof(exportAsGoogleAndroidFlag)}: {exportAsGoogleAndroidFlag}, " +
-                $"{nameof(buildAppBundle)}: {buildAppBundle}";
+                $"{nameof(buildAppBundle)}: {buildAppBundle}, "                       +
+                $"{nameof(scriptingBackend)}: {scriptingBackend}";
         }
     }
 }

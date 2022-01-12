@@ -34,6 +34,13 @@ namespace armet.BuildExporter
                               .Select(x => x.path)
                               .ToArray();
 
+            if (s_ScenesInBuild.Length == 0)
+            {
+                Debug.LogError(
+                    $"{nameof(BuildUtility)}.{nameof(InitBuild)}.Scenes: " +
+                    "No scenes in \"Build Settings / Scenes In Build\". At least one is required.");
+            }
+
             Debug.Log($"{nameof(BuildUtility)}.{nameof(InitBuild)}.Scenes: {s_ScenesInBuild.ElementsToString()}");
         }
 
@@ -67,6 +74,9 @@ namespace armet.BuildExporter
 
             EditorUserBuildSettings.development                  = false;
             EditorUserBuildSettings.exportAsGoogleAndroidProject = true;
+            PlayerSettings.SetScriptingBackend(
+                EditorUserBuildSettings.selectedBuildTargetGroup,
+                ScriptingImplementation.IL2CPP);
 
             if (PlayerSettingsVersioner.TryParse(
                 s_BuildArguments[BuildArguments.k_Version],
