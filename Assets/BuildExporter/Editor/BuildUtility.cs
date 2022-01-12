@@ -52,9 +52,9 @@ namespace armet.BuildExporter
 
         private static string ReportToString(BuildReport report)
         {
-            return $"{report.name}, "                                                                            +
-                   $"Path {report.summary.outputPath}, "                                                         +
-                   $"Time {(int) report.summary.totalTime.TotalMinutes}:{report.summary.totalTime.Seconds:00}, " +
+            return $"{report.name}, "                                                                           +
+                   $"Path {report.summary.outputPath}, "                                                        +
+                   $"Time {(int)report.summary.totalTime.TotalMinutes}:{report.summary.totalTime.Seconds:00}, " +
                    $"Number of errors {report.summary.totalErrors}";
         }
 
@@ -79,11 +79,19 @@ namespace armet.BuildExporter
                 ScriptingImplementation.IL2CPP);
 
             if (PlayerSettingsVersioner.TryParse(
-                s_BuildArguments[BuildArguments.k_Version],
-                s_BuildArguments[BuildArguments.k_VersionCode],
-                out PlayerSettingsVersioner playerSettingsVersioner))
+                    s_BuildArguments[BuildArguments.k_Version],
+                    s_BuildArguments[BuildArguments.k_VersionCode],
+                    out PlayerSettingsVersioner playerSettingsVersioner))
             {
                 playerSettingsVersioner.Apply();
+                Directory.CreateDirectory("BuildExporter");
+                File.WriteAllLines("BuildExporter/.gitignore", new[] { "*.txt" });
+                File.WriteAllLines(
+                    "BuildExporter/latest-build-version.txt", new[]
+                    {
+                        playerSettingsVersioner.version.ToString(),
+                        playerSettingsVersioner.versionCode.ToString()
+                    });
             }
             else
             {
