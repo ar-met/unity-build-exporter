@@ -85,7 +85,7 @@ namespace armet.BuildExporter
             {
                 playerSettingsVersioner.Apply();
                 Directory.CreateDirectory("BuildExporter");
-                File.WriteAllLines("BuildExporter/.gitignore", new[] { "*.txt" });
+                File.WriteAllLines("BuildExporter/.gitignore", new[] { "*.txt", "*.log" });
                 File.WriteAllLines(
                     "BuildExporter/latest-build-version.txt", new[]
                     {
